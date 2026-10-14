@@ -39,3 +39,11 @@
 ## 写代码
 
 匹配周围代码的写法、命名和注释密度。选能清楚解决问题的简单方案，只定义正在使用的抽象。验证改动涉及的重要行为，不为简单的样式改动写测试。
+
+## Cursor Cloud specific instructions
+
+- 开发机上的 Node 是 24.21，装在 `/usr/local/lib/nodejs`。镜像自带的 `node` 是 22，并且排在 PATH 前面；安装时已经把 24 的 `node` / `npm` 链到 `/usr/local/cargo/bin`。动手前确认 `node -v` 是 v24。
+- PostgreSQL 16 在本机，库名 `aihot`，本机连接 trust：`DATABASE_URL=postgres://127.0.0.1:5432/aihot`。这个镜像的 `policy-rc.d` 会拒绝 `service postgresql start`，要拉起数据库用 `sudo pg_ctlcluster 16 main start`。
+- 开机脚本会启动数据库、在缺少 `.env` 时生成一份，并跑迁移和种子。三个进程用 tmux 会话 `api`、`worker`、`web`：接口在 `127.0.0.1:3001`，网页在 `127.0.0.1:3000`。日志是 `/tmp/aihot-api.log`、`/tmp/aihot-worker.log`、`/tmp/aihot-web.log`。
+- 生成的 `.env` 把安全阀关掉（`COLLECT_ENABLED=false`、`MODEL_CALLS_ENABLED=false`，飞书和 IndexNow 同样关闭）。后台免登录靠 `DEV_AUTH_ROLE=admin`。不要提交 `.env`。
+- 测试库 `aihot_test` 可以复用。检查命令见上面的「运行与检查」，先对测试库跑 `node scripts/migrate.ts`。
